@@ -80,6 +80,9 @@ if (args.debug || args.d) {
       const stmt = logdb.prepare("SELECT * FROM accesslog").all();
     res.status(200).json(stmt);
   })
+  app.get('/app/error/', (req, res, next) => {
+    throw new Error('Error test works.')
+})
 
 }
 app.get('/app', (req, res) => {
