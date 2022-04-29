@@ -17,23 +17,6 @@ const server = app.listen(port, () => {
   console.log('App listening on port %PORT%'.replace('%PORT%',port))
 });
 
-app.use(express.json());
-
-if (args.log == 'false') {
-  console.log("NOTICE: not creating file access.log")
-} else {
-    
-        const logdir = './log/';
-    
-        if (!fs.existsSync(logdir)){
-            fs.mkdirSync(logdir);
-        }
-    
-        const accessLog = fs.createWriteStream( logdir+'access.log', { flags: 'a' })
-    
-        app.use(morgan('combined', { stream: accessLog }))
-    }
-
 const help = (`
 server.js [options]
 
@@ -56,6 +39,23 @@ if (args.help || args.h) {
   process.exit(0)
 }
 
+
+app.use(express.json());
+
+if (args.log == 'false') {
+  console.log("NOTICE: not creating file access.log")
+} else {
+    
+        const logdir = './log/';
+    
+        if (!fs.existsSync(logdir)){
+            fs.mkdirSync(logdir);
+        }
+    
+        const accessLog = fs.createWriteStream( logdir+'access.log', { flags: 'a' })
+    
+        app.use(morgan('combined', { stream: accessLog }))
+    }
 
 app.use((req, res, next) => {
   let logdata = {
