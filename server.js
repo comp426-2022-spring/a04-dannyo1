@@ -6,11 +6,33 @@ const fs = require('fs')
 const logdb = require('./database')
 
 
+
 const args = require('minimist')(process.argv.slice(2))
 
-args["port", "help"]
+// args["port", "help", "debug", "log"]
 
 const port = args.port || process.env.PORT || 3000
+
+const server = app.listen(port, () => {
+  console.log('App listening on port %PORT%'.replace('%PORT%',port))
+});
+
+app.use(express.json());
+
+if (args.log == 'false') {
+  console.log("NOTICE: not creating file access.log")
+} else {
+    
+        const logdir = './log/';
+    
+        if (!fs.existsSync(logdir)){
+            fs.mkdirSync(logdir);
+        }
+    
+        const accessLog = fs.createWriteStream( logdir+'access.log', { flags: 'a' })
+    
+        app.use(morgan('combined', { stream: accessLog }))
+    }
 
 const help = (`
 server.js [options]
@@ -35,31 +57,31 @@ if (args.help || args.h) {
 }
 
 
-
-const server = app.listen(port, () => {
-    console.log('App listening on port %PORT%'.replace('%PORT%',port))
-});
-
-const accessLog = fs.createWriteStream('access.log', { flags: 'a' })
-
-app.use(morgan('combined', { stream: accessLog }), (req, res, next) => {
+app.use((req, res, next) => {
   let logdata = {
-    remoteaddr: req.ip,
-    remoteuser: req.user,
-    time: Date.now(),
-    method: req.method,
-    url: req.url,
-    protocol: req.protocol,
-    httpversion: req.httpVersion,
-    status: res.statusCode,
-    referer: req.headers['referer'],
-    useragent: req.headers['user-agent']
-}
-next()
+      remoteaddr: req.ip,
+      remoteuser: req.user,
+      time: Date.now(),
+      method: req.method,
+      url: req.url,
+      protocol: req.protocol,
+      httpversion: req.httpVersion,
+      status: res.statusCode,
+      referrer: req.headers['referer'],
+      useragent: req.headers['user-agent']
+  };
+  const stmt = logdb.prepare('INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referrer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+  const info = stmt.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referrer, logdata.useragent)
+  next();
+})
+
+if (args.debug || args.d) {
+  app.get('/app/log/access/', (req, res, next) => {
+      const stmt = logdb.prepare("SELECT * FROM accesslog").all();
+    res.status(200).json(stmt);
   })
 
-
-
+}
 app.get('/app', (req, res) => {
     res.status(200).send('200 OK')
     // res.type("text/plain")
@@ -80,9 +102,6 @@ app.get('/app/flip', (req, res) => {
      res.status(200).json(flipACoin(req.params.guess))
  })
 
-app.get('/app/log/access', (req, res) => {
-
-})
 
 
  // app.use(function(req, res) {
@@ -142,4 +161,3 @@ function coinFlip() {
       return "Error: no input. \nUsage: node guess-flip --call=[heads|tails]"
     }
   }
-
