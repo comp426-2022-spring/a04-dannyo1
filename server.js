@@ -9,7 +9,7 @@ const logdb = require('./database')
 
 const args = require('minimist')(process.argv.slice(2))
 
-// args["port", "help", "debug", "log"]
+args["port", "help", "debug", "log"]
 
 const port = args.port || process.env.PORT || 3000
 
