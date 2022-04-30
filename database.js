@@ -1,7 +1,7 @@
 const database = require('better-sqlite3')
 
 const fs = require('fs');
-const datadir = './data/';
+const datadir = './src/data/';
 
 if (!fs.existsSync(datadir)){
     fs.mkdirSync(datadir);
