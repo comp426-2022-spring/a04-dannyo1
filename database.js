@@ -12,7 +12,7 @@ const logdb = new database(datadir+'log.db')
 const stmt = logdb.prepare(`SELECT name FROM sqlite_master WHERE type='table' and name='accesslog';`)
 let row = stmt.get();
 if (row === undefined) {
-    console.log('Log database appears to be empty. Creating log database...')
+    console.log('Your database appears to be empty. I will initialize it now.')
 
     const sqlInit = `
         CREATE TABLE accesslog ( 
@@ -31,8 +31,9 @@ if (row === undefined) {
     `
 
     logdb.exec(sqlInit)
+    console.log('Your database has been initialized with a new table and two entries containing a username and password.')
 } else {
-    console.log('Log database exists.')
+    console.log('Database exists.')
 }
 
 module.exports = logdb

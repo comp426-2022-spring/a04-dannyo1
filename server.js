@@ -3,7 +3,7 @@ const express = require('express')
 const app = express()
 const morgan = require('morgan')
 const fs = require('fs')
-const logdb = require('./database')
+const logdb = require('./database.js')
 
 
 
@@ -11,7 +11,7 @@ const args = require('minimist')(process.argv.slice(2))
 
 args["port", "help", "debug", "log"]
 
-const port = args.port || process.env.PORT || 3000
+const port = args.port || process.env.PORT || 5555
 
 const server = app.listen(port, () => {
   console.log('App listening on port %PORT%'.replace('%PORT%',port))
